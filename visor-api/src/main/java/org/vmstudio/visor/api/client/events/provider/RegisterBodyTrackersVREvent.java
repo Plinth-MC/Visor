@@ -6,6 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.eventbus.event.VREvent;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -20,7 +21,7 @@ public class RegisterBodyTrackersVREvent extends VREvent {
 
     public RegisterBodyTrackersVREvent(@NotNull List<AtumVRBodyView> providers){
         super(VisorAPI.addonManager().getCoreAddon());
-        this.providers = providers;
+        this.providers = new ArrayList<>(providers);
     }
 
     public void addProvider(@NotNull AtumVRBodyView provider){
