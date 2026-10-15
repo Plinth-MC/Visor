@@ -24,6 +24,7 @@ import java.util.EnumMap;
 import java.util.Map;
 
 //? if >=26.3 {
+import org.lwjgl.sdl.SDLError;
 import org.lwjgl.sdl.SDLVideo;
 //?} else {
 /*import static org.lwjgl.glfw.GLFW.glfwMakeContextCurrent;
@@ -66,6 +67,7 @@ public class XrRenderer extends VRRendererBase {
     //? if >=26.3 {
     private long glWindow;
     private long glContext;
+    private boolean glContextRestoreFailed;
     //?}
 
     @Override
@@ -577,7 +579,12 @@ public class XrRenderer extends VRRendererBase {
     protected void restoreGLContext() {
         if (steamVRLinuxWorkaround) {
             //? if >=26.3 {
-            SDLVideo.SDL_GL_MakeCurrent(glWindow, glContext);
+            SDLVideo.SDL_GL_MakeCurrent(glWindow, 0L);
+            boolean restored = SDLVideo.SDL_GL_MakeCurrent(glWindow, glContext);
+            if (!restored && !glContextRestoreFailed) {
+                getVrProvider().getLogger().logError("Failed to restore the GL context: " + SDLError.SDL_GetError());
+            }
+            glContextRestoreFailed = !restored;
             //?} else {
             /*glfwMakeContextCurrent(getWindowHandle());
             *///?}
