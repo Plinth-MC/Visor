@@ -160,7 +160,7 @@ public final class VRMenuSky {
     private static final Identifier VISOR_ICON_TEXTURE = McVersionUtils.newResourceLoc("visor:icon_headset.png");
 
     private static final int VISOR_ICON_COLS = 21;
-    private static final int VISOR_ICON_ROWS = 9;
+    private static final int VISOR_ICON_ROWS = 10;
     private static final int VISOR_ICON_GAP = 2; // empty rows between the icon and the glyphs
     private static final int VISOR_ICON_MIN_ALPHA = 128;
 
@@ -1379,34 +1379,75 @@ public final class VRMenuSky {
     }
 
     private static DotsSign createIconDotsSign() {
-        List<float[]> points = new ArrayList<>();
-        List<Integer> columns = new ArrayList<>();
+        boolean[][] lit;
         try (InputStream stream = Minecraft.getInstance().getResourceManager().open(VISOR_ICON_TEXTURE);
              NativeImage image = NativeImage.read(stream)) {
-            int width = image.getWidth();
-            int height = image.getHeight();
-            float centerCol = (VISOR_ICON_COLS - 1) / 2f;
-            float bottomY = ((GLYPH_H - 1) / 2f + VISOR_ICON_GAP + 1) * VISOR_DOTS_SPACING;
-            int colOffset = (VISOR_TOTAL_COLS - VISOR_ICON_COLS) / 2; // gleam sweeps icon and glyphs together
-            for (int row = 0; row < VISOR_ICON_ROWS; row++) {
-                int y = (int) ((row + 0.5f) * height / VISOR_ICON_ROWS);
-                for (int col = 0; col < VISOR_ICON_COLS; col++) {
-                    int x = (int) ((col + 0.5f) * width / VISOR_ICON_COLS);
-                    if ((McRenderUtils.getPixelArgb(image, x, y) >>> 24) < VISOR_ICON_MIN_ALPHA) {
-                        continue;
-                    }
-                    float localX = (centerCol - col) * VISOR_DOTS_SPACING;
-                    float localY = bottomY + (VISOR_ICON_ROWS - 1 - row) * VISOR_DOTS_SPACING;
-                    points.add(signPoint(localX, localY));
-                    columns.add(colOffset + col);
-                }
-            }
+            lit = withoutCornerElbows(sampleIconGrid(image));
         } catch (Exception e) {
             VisorClientImpl.LOGGER.warn("Failed to load the main menu sky icon {}", VISOR_ICON_TEXTURE, e);
-            points.clear();
-            columns.clear();
+            lit = new boolean[0][];
+        }
+
+        float centerCol = (VISOR_ICON_COLS - 1) / 2f;
+        float bottomY = ((GLYPH_H - 1) / 2f + VISOR_ICON_GAP + 1) * VISOR_DOTS_SPACING;
+        int colOffset = (VISOR_TOTAL_COLS - VISOR_ICON_COLS) / 2; // gleam sweeps icon and glyphs together
+        List<float[]> points = new ArrayList<>();
+        List<Integer> columns = new ArrayList<>();
+        for (int row = 0; row < lit.length; row++) {
+            for (int col = 0; col < VISOR_ICON_COLS; col++) {
+                if (!lit[row][col]) {
+                    continue;
+                }
+                float localX = (centerCol - col) * VISOR_DOTS_SPACING;
+                float localY = bottomY + (VISOR_ICON_ROWS - 1 - row) * VISOR_DOTS_SPACING;
+                points.add(signPoint(localX, localY));
+                columns.add(colOffset + col);
+            }
         }
         return toDotsSign(points, columns);
+    }
+
+    private static boolean[][] sampleIconGrid(NativeImage image) {
+        boolean[][] lit = new boolean[VISOR_ICON_ROWS][VISOR_ICON_COLS];
+        for (int row = 0; row < VISOR_ICON_ROWS; row++) {
+            int y = (int) ((row + 0.5f) * image.getHeight() / VISOR_ICON_ROWS);
+            for (int col = 0; col < VISOR_ICON_COLS; col++) {
+                int x = (int) ((col + 0.5f) * image.getWidth() / VISOR_ICON_COLS);
+                lit[row][col] = (McRenderUtils.getPixelArgb(image, x, y) >>> 24) >= VISOR_ICON_MIN_ALPHA;
+            }
+        }
+        return lit;
+    }
+
+    private static boolean[][] withoutCornerElbows(boolean[][] lit) {
+        boolean[][] out = new boolean[lit.length][];
+        for (int row = 0; row < lit.length; row++) {
+            out[row] = lit[row].clone();
+            for (int col = 0; col < lit[row].length; col++) {
+                if (lit[row][col] && isCornerElbow(lit, row, col)) {
+                    out[row][col] = false;
+                }
+            }
+        }
+        return out;
+    }
+
+    private static boolean isCornerElbow(boolean[][] lit, int row, int col) {
+        int neighbours = 0;
+        for (int dRow = -1; dRow <= 1; dRow++) {
+            for (int dCol = -1; dCol <= 1; dCol++) {
+                if ((dRow != 0 || dCol != 0) && isLit(lit, row + dRow, col + dCol)) {
+                    neighbours++;
+                }
+            }
+        }
+        return neighbours == 2
+                && (isLit(lit, row, col - 1) || isLit(lit, row, col + 1))
+                && (isLit(lit, row - 1, col) || isLit(lit, row + 1, col));
+    }
+
+    private static boolean isLit(boolean[][] lit, int row, int col) {
+        return row >= 0 && row < lit.length && col >= 0 && col < lit[row].length && lit[row][col];
     }
 
     private static float[] signPoint(float localX, float localY) {
