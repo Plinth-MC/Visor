@@ -33,15 +33,11 @@ public class NvidiumHelper {
         }
     }
 
-    public static boolean shouldKeepCommandBuffer() {
-        if (VisorState.get().isNotActive() || !isRendererActive()) {
-            return false;
-        }
-        if (VRRenderState.getPhase().isVanilla()) {
-            return false;
-        }
+    public static int getViewSlot() {
+        if (VisorState.get().isNotActive() || VRRenderState.getPhase().isVanilla()) return 0;
         VRRenderPass renderPass = VRRenderState.getRenderPass();
-        return renderPass.isWorld() && !renderPass.isEye();
+        if (!renderPass.isWorld() || renderPass.isEye()) return 0;
+        return renderPass == VRRenderPass.CENTER ? 1 : 2;
     }
 
     public static void ensureVRTemporalCoherence() {
