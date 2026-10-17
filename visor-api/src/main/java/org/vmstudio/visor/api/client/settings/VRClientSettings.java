@@ -81,6 +81,10 @@ public class VRClientSettings {
 
 
     @Getter
+    @VROptionField(key = "auto_sprint", category = VROptionCategory.MOVEMENT)
+    protected static boolean autoSprint = true;
+
+    @Getter
     @VROptionField(key = "movement.sprintThreshold")
     protected static float sprintThreshold = 0.9f;
 

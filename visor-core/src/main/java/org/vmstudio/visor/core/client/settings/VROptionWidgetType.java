@@ -356,6 +356,11 @@ public enum VROptionWidgetType {
             "walk_up",
             (it) -> null
     ),
+    AUTO_SPRINT(
+            VROptionCategory.MOVEMENT,
+            "auto_sprint",
+            (it) -> null
+    ),
     COMPATIBLE_LOOK_DIRECTION(
             VROptionCategory.MOVEMENT,
             "compatible_look_direction",

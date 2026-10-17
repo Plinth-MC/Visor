@@ -46,6 +46,7 @@ public class GameActionSet extends VRActionSet {
                 new GameActionMovement(this),
                 new GameActionRotate(this),
                 new GameActionJump(this),
+                new GameActionSprint(this),
 
                 new GameActionHotBar(this, HandType.MAIN),
                 new GameActionHotBar(this, HandType.OFFHAND)
