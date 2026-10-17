@@ -223,7 +223,6 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             return;
         }
 
-        BlockState blockState;
         if (!this.level.mayInteract(this.player, blockPos)) {
             this.player.connection.send(new ClientboundBlockUpdatePacket(blockPos, this.level.getBlockState(blockPos)));
             this.debugLogging(blockPos, false, j, "may not interact");
@@ -246,30 +245,31 @@ public abstract class ServerPlayerGameModeMixin implements ServerPlayerGameModeE
             return;
         }
 
-        float blockDamage = 1.0F;
-        blockState = this.level.getBlockState(blockPos);
-        if (!blockState.isAir()) {
-            blockState.attack(this.level, blockPos, this.player);
-            float savedDamage = 0;
-            PairRecord<Long, Float> savedBlockDamage = visor$blockDamage.get(blockPos.asLong());
-            if (savedBlockDamage != null) {
-                savedDamage = savedBlockDamage.second();
-            }
-            float step = visor$getDestroyProgress(
-                    blockState,
-                    this.player,
-                    this.player.level(),
-                    blockPos, usedItem
-            );
-            Integer startTick = visor$blockDamageStart.get(blockPos.asLong());
-            int elapsed = startTick != null
-                    ? Math.max(0, this.gameTicks - startTick) : 0;
-            float speedFactor = Math.max(0.1F, VRServerSettings.getSwingingMiningSpeed());
-            float allowed = step * (elapsed + visor$MINING_BONUS_TICKS) * speedFactor;
-            blockDamage = Math.max(savedDamage, Math.min(savedDamage + step, allowed));
+        BlockState blockState = this.level.getBlockState(blockPos);
+        if (blockState.isAir()) {
+            this.debugLogging(blockPos, false, j, "already air");
+            return;
         }
+        blockState.attack(this.level, blockPos, this.player);
+        float savedDamage = 0;
+        PairRecord<Long, Float> savedBlockDamage = visor$blockDamage.get(blockPos.asLong());
+        if (savedBlockDamage != null) {
+            savedDamage = savedBlockDamage.second();
+        }
+        float step = visor$getDestroyProgress(
+                blockState,
+                this.player,
+                this.player.level(),
+                blockPos, usedItem
+        );
+        Integer startTick = visor$blockDamageStart.get(blockPos.asLong());
+        int elapsed = startTick != null
+                ? Math.max(0, this.gameTicks - startTick) : 0;
+        float speedFactor = Math.max(0.1F, VRServerSettings.getSwingingMiningSpeed());
+        float allowed = step * (elapsed + visor$MINING_BONUS_TICKS) * speedFactor;
+        float blockDamage = Math.max(savedDamage, Math.min(savedDamage + step, allowed));
 
-        if (!blockState.isAir() && blockDamage >= 1.0F) {
+        if (blockDamage >= 1.0F) {
             this.visor$destroyAndAck(
                     blockPos, j,
                     "instant mine",
