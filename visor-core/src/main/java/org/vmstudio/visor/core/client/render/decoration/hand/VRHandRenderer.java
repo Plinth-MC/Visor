@@ -45,9 +45,11 @@ import org.vmstudio.visor.api.client.gui.helpers.TexturesHelper;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 import org.vmstudio.visor.core.client.gui.VRCursorHandlerImpl;
 import net.minecraft.client.player.AbstractClientPlayer;
+//? if >=1.21.9 {
+import org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer;
+//?}
 //? if >=26.2 {
 import net.minecraft.client.renderer.SubmitNodeCollector;
-import org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer;
 //?} else {
 /*import net.minecraft.client.renderer.MultiBufferSource;
 *///?}
@@ -458,12 +460,9 @@ public class VRHandRenderer {
                 MC.getEntityRenderDispatcher().getPackedLightCoords(MC.player, partialTicks),
                 partialTicks
         );
-        //? if >=26.2 {
+        //? if >=1.21.9 {
         McFeatureRenderer.render();
-        //?} elif >=1.21.9 {
-        /*MC.gameRenderer.getFeatureRenderDispatcher().renderAllFeatures();
-        bufferSource.endBatch();
-        *///?} else {
+        //?} else {
         /*bufferSource.endBatch();
         *///?}
         McGlState.turnOffLightLayer();
@@ -555,7 +554,7 @@ public class VRHandRenderer {
             //?} elif >=1.21.9 && <26.2 {
             /*MC.gameRenderer.itemInHandRenderer.renderItem(
                     player, itemStack, displayCtx,
-                    poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight
+                    poseStack, McFeatureRenderer.collector(), packedLight
             );
             *///?} elif >=1.21.5 {
             /*MC.gameRenderer.itemInHandRenderer.renderItem(
@@ -611,10 +610,10 @@ public class VRHandRenderer {
                 );
         //? if >=1.21.9 && <26.2 {
         /*if (mainHand) {
-            bodyRenderer.renderRightHand(poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight,
+            bodyRenderer.renderRightHand(poseStack, McFeatureRenderer.collector(), packedLight,
                     McRenderUtils.getSkinTexture(player), player.isModelPartShown(PlayerModelPart.RIGHT_SLEEVE));
         } else {
-            bodyRenderer.renderLeftHand(poseStack, MC.gameRenderer.getSubmitNodeStorage(), packedLight,
+            bodyRenderer.renderLeftHand(poseStack, McFeatureRenderer.collector(), packedLight,
                     McRenderUtils.getSkinTexture(player), player.isModelPartShown(PlayerModelPart.LEFT_SLEEVE));
         }
         *///?} elif >=1.21.2 {

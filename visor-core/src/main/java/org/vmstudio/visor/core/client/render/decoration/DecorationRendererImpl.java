@@ -113,7 +113,7 @@ public class DecorationRendererImpl implements VRDecorationRenderer {
             stage.run();
             return;
         }
-        //? if >=1.21.9 && <26.2 {
+        //? if >=1.21.9 && <26.1 {
         /*MC.gameRenderer.getFeatureRenderDispatcher().renderAllFeatures();
         *///?}
         //? if <26.2 {
