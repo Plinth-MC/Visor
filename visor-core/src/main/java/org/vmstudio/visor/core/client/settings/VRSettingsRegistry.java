@@ -8,6 +8,8 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.core.client.gui.screens.settings.OptionWidgetEntry;
 import org.vmstudio.visor.core.client.gui.screens.settings.VROptionsSet;
+import org.vmstudio.visor.core.client.gui.screens.settings.VRSettingsScreen;
+import net.minecraft.network.chat.Component;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -16,10 +18,11 @@ import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.BiConsumer;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
- * Addon settings: options stored in Visor's settings file (like {@link VRClientSettings} fields)
- * and widgets added to Visor's settings pages.
+ * Addon settings: options stored in Visor's settings file (like {@link VRClientSettings} fields),
+ * widgets added to Visor's settings pages and settings tabs of their own.
  * <p>
  *     Options must be registered before the Visor client starts
  *     (e.g. in {@code VisorAddon#onAddonRegister}).
@@ -37,9 +40,16 @@ public final class VRSettingsRegistry {
     private record PageEntries(@NotNull Class<? extends VROptionsSet> page,
                                @NotNull BiConsumer<VROptionsSet, List<OptionWidgetEntry>> contributor) { }
 
+    /**
+     * A settings tab added by an addon, listed after Visor's own tabs
+     */
+    public record Tab(@NotNull Component name,
+                      @NotNull Function<VRSettingsScreen, VROptionsSet> page) { }
+
     private static final List<Option> OPTIONS = new CopyOnWriteArrayList<>();
     private static final List<PageEntries> PAGE_ENTRIES = new CopyOnWriteArrayList<>();
     private static final List<Consumer<Config>> LOAD_LISTENERS = new CopyOnWriteArrayList<>();
+    private static final List<Tab> TABS = new CopyOnWriteArrayList<>();
 
     private VRSettingsRegistry() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
@@ -85,6 +95,17 @@ public final class VRSettingsRegistry {
     }
 
     /**
+     * Add a tab of its own to the settings screen, after Visor's tabs
+     *
+     * @param name tab button text
+     * @param page builds the tab's page (e.g. {@code screen -> new MyPage(screen, null, screen::repopulateWidgets)})
+     */
+    public static void registerTab(@NotNull Component name,
+                                   @NotNull Function<VRSettingsScreen, VROptionsSet> page) {
+        TABS.add(new Tab(name, page));
+    }
+
+    /**
      * Called once at client start after the settings file was loaded and before it is
      * re-saved (migrations of older settings files)
      */
@@ -95,6 +116,11 @@ public final class VRSettingsRegistry {
     @ApiStatus.Internal
     public static List<Option> getOptions() {
         return OPTIONS;
+    }
+
+    @ApiStatus.Internal
+    public static List<Tab> getTabs() {
+        return TABS;
     }
 
     @ApiStatus.Internal
