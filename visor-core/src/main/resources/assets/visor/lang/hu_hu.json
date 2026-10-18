@@ -54,6 +54,8 @@
   "visor.options.movement.world_rotation.smooth": "Folyamatos",
   "visor.options.movement.walk_up": "Automatikus fellépés",
   "visor.options.movement.walk_up.tooltip": "§bAutomatikus fellépés§r\n\nJárás közben automatikusan fellép a blokkokra.",
+  "visor.options.movement.auto_sprint": "Automatikus futás",
+  "visor.options.movement.auto_sprint.tooltip": "§bAutomatikus futás§r\n\nFutás, amikor a mozgás joystickot\nteljesen előre tolod.\n\nKapcsold ki, ha inkább a §eFutás§r művelettel futnál\n§7(Irányítás -> Játék műveletek, alapértelmezett gomb nélkül).§r",
 
 
   "visor.options.movement.compatible_look_direction": "Kompatibilis nézésirány",
@@ -253,6 +255,7 @@
   "visor.action.hotbar": "Gyorssáv megnyitása",
   "visor.action.movement": "Mozgás",
   "visor.action.jump": "Ugrás",
+  "visor.action.sprint": "Futás",
   "visor.action.rotate": "Forgatás",
   "visor.action.shift": "Shift",
   "visor.action.hotbar_main": "Gyorssáv (fő kéz)",

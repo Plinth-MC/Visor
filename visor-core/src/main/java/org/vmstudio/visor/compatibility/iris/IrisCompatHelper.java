@@ -311,7 +311,7 @@ public final class IrisCompatHelper {
 
         @Override
         public int getShaderLightValue() {
-            return isActive() ? 16 : 8;
+            return isActive() ? 15 : 8;
         }
 
         @Override

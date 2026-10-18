@@ -104,20 +104,7 @@ public abstract class LevelRendererSwingDamageMixin implements LevelRendererExte
         }
 
         try {
-
             List<Long> toRemove = new ArrayList<>();
-            destructionProgress.forEach((key, value) -> {
-                int stage = value.last().getProgress();
-                if (stage < 0 || stage >= ModelBakery.DESTROY_TYPES.size()) {
-                    toRemove.add(key);
-                }
-            });
-            toRemove.forEach(it -> {
-                destructionProgress.remove(it.longValue());
-                visor$damagedBlocksVr.remove(it);
-                visor$damagedBlocksVrSave.remove(it);
-            });
-            toRemove.clear();
             for (Map.Entry<Long, Long> entry : visor$damagedBlocksVr.entrySet()) {
                 SortedSet<BlockDestructionProgress> set = destructionProgress.get(entry.getKey());
                 if (set == null) {
@@ -163,16 +150,12 @@ public abstract class LevelRendererSwingDamageMixin implements LevelRendererExte
         if (!VRServerSettings.isBetterSwinging()
                 || VisorState.get().isNotActive()) return;
 
-        if (destroyStage == -1) {
+        if (destroyStage < 0 || destroyStage >= ModelBakery.DESTROY_TYPES.size()) {
             visor$damagedBlocksVr.remove(blockPos.asLong());
             visor$damagedBlocksVrSave.remove(blockPos.asLong());
-            destructionProgress.remove(blockPos.asLong());
-            return;
-        }
-
-        if (destroyStage == -2) {
-            visor$damagedBlocksVr.remove(blockPos.asLong());
-            visor$damagedBlocksVrSave.remove(blockPos.asLong());
+            if (destroyStage != -2) {
+                destructionProgress.remove(blockPos.asLong());
+            }
             return;
         }
 
