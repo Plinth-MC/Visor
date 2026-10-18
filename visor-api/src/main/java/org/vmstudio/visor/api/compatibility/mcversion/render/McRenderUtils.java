@@ -320,8 +320,8 @@ public class McRenderUtils {
     }
 
     public static void endRenderPass() {
-        //? if >=26.2 {
         McFeatureRenderer.endFrame();
+        //? if >=26.2 {
         com.mojang.blaze3d.systems.RenderSystem.getDevice().createCommandEncoder().submit();
         //?}
     }

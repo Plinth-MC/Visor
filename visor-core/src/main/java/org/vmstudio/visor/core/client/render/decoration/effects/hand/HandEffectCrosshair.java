@@ -114,7 +114,7 @@ public class HandEffectCrosshair extends VRHandEffect {
         poseStack.setIdentity();
         RenderPoseHelper.applyCameraOrientation(renderPass, poseStack);
 
-        Vector3f camPos = MC.getCameraEntity().position().toVector3f();
+        Vector3fc camPos = RenderPoseHelper.getCameraPosition(renderPass, pose);
         Vector3f translate = crossPos.sub(camPos);
         poseStack.translate(translate.x, translate.y, translate.z);
 

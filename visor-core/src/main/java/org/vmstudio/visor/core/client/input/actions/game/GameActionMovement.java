@@ -102,10 +102,12 @@ public class GameActionMovement extends VRActionVec2 {
                 ClientUtils.updateKeyMappingState(MC.options.keyRight, digital.x > 0);
                 ClientUtils.updateKeyMappingState(MC.options.keyLeft, digital.x < 0);
 
-                if (!MC.player.isMovingSlowly()) {
+                if (VRClientSettings.isAutoSprint() && !MC.player.isMovingSlowly()) {
                     if (forward >= VRClientSettings.getSprintThreshold()) {
+                        if (!MC.player.isSprinting()) {
+                            this.wasAutoSprinting = true;
+                        }
                         MC.player.setSprinting(true);
-                        this.wasAutoSprinting = true;
                         movement.y = 1.0F;
                     } else if (movement.y > 0.0F) {
                         movement.y /= VRClientSettings.getSprintThreshold();

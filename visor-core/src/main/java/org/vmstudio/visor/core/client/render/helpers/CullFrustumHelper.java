@@ -4,17 +4,12 @@ import me.phoenixra.atumvr.api.enums.EyeType;
 import org.joml.Matrix4f;
 import org.joml.Matrix4fc;
 import org.vmstudio.visor.api.client.render.VRRenderPass;
-import org.vmstudio.visor.api.client.settings.VRClientSettings;
-import org.vmstudio.visor.api.client.settings.enums.MirrorMode;
-import org.vmstudio.visor.compatibility.nvidium.NvidiumHelper;
 import org.vmstudio.visor.compatibility.sodium.SodiumHelper;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.render.VRRenderState;
 
 public class CullFrustumHelper {
-    private static final Matrix4f lastCenterProjection = new Matrix4f();
-    private static boolean centerProjectionCaptured;
     private CullFrustumHelper() {
         throw new UnsupportedOperationException("This is an utility class and cannot be instantiated");
     }
@@ -27,11 +22,6 @@ public class CullFrustumHelper {
             return projection;
         }
         VRRenderPass renderPass = VRRenderState.getRenderPass();
-        if (renderPass == VRRenderPass.CENTER) {
-            lastCenterProjection.set(projection);
-            centerProjectionCaptured = true;
-            return projection;
-        }
         if (!renderPass.isEye()) {
             return projection;
         }
@@ -45,13 +35,6 @@ public class CullFrustumHelper {
         float tanRight = Math.max(tanRight(projection), Math.max(tanRight(left), tanRight(right)));
         float tanDown = Math.min(tanDown(projection), Math.min(tanDown(left), tanDown(right)));
         float tanUp = Math.max(tanUp(projection), Math.max(tanUp(left), tanUp(right)));
-
-        if (centerProjectionCaptured && NvidiumHelper.isRendererActive() && isCenterPassActive()) {
-            tanLeft = Math.min(tanLeft, tanLeft(lastCenterProjection));
-            tanRight = Math.max(tanRight, tanRight(lastCenterProjection));
-            tanDown = Math.min(tanDown, tanDown(lastCenterProjection));
-            tanUp = Math.max(tanUp, tanUp(lastCenterProjection));
-        }
 
         double cullFovMargin = Math.toRadians(5);
         tanLeft = expand(tanLeft, -cullFovMargin);
@@ -69,14 +52,6 @@ public class CullFrustumHelper {
         result.m20((tanRight + tanLeft) / (tanRight - tanLeft));
         result.m21((tanUp + tanDown) / (tanUp - tanDown));
         return result;
-    }
-
-    private static boolean isCenterPassActive() {
-        MirrorMode mode = VRClientSettings.getMirrorMode();
-        return mode == MirrorMode.FIRST_PERSON
-                || (mode == MirrorMode.MIXED_REALITY
-                && VRClientSettings.isMixedRealityWithFirstPerson()
-                && VRClientSettings.isMixedRealityAsGrid2x2());
     }
 
     private static float expand(float tangent, double marginRadians) {

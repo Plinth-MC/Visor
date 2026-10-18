@@ -54,6 +54,8 @@
   "visor.options.movement.world_rotation.smooth": "Fluide",
   "visor.options.movement.walk_up": "Monte automatique",
   "visor.options.movement.walk_up.tooltip": "§nMonte automatique§r\n\nMontez automatiquement sur des blocs tout en marchant.",
+  "visor.options.movement.auto_sprint": "Sprint automatique",
+  "visor.options.movement.auto_sprint.tooltip": "§bSprint automatique§r\n\nSprintez lorsque le joystick de mouvement\nest poussé à fond vers l'avant.\n\nDésactivez-le pour sprinter avec l'action §eSprinter§r\n§7(Commandes -> Actions en jeu, aucune touche par défaut).§r",
 
 
   "visor.options.movement.compatible_look_direction": "Regard compatible",
@@ -206,6 +208,7 @@
   "visor.action.hotbar": "Ouvrir la barre de raccourcis",
   "visor.action.movement": "Déplacement",
   "visor.action.jump": "Sauter",
+  "visor.action.sprint": "Sprinter",
   "visor.action.rotate": "Rotation",
   "visor.action.shift": "Accroupissement",
   "visor.action.hotbar_main": "Barre de raccourcis (Principale)",

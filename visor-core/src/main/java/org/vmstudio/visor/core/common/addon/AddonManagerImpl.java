@@ -1,6 +1,8 @@
 package org.vmstudio.visor.core.common.addon;
 
+import com.google.common.collect.ImmutableMap;
 import lombok.Getter;
+import org.jetbrains.annotations.Nullable;
 import org.vmstudio.visor.api.ModLoader;
 import org.vmstudio.visor.api.VisorAPI;
 import org.vmstudio.visor.api.common.addon.VisorAddon;
@@ -22,7 +24,7 @@ public class AddonManagerImpl implements AddonManager {
     private final Logger logger;
 
 
-    private final Map<String, VisorAddon> addonsMap;
+    private ImmutableMap<@NotNull String, @NotNull VisorAddon> addonsMap;
 
     @Getter
     private VisorRegistriesImpl registries;
@@ -32,9 +34,6 @@ public class AddonManagerImpl implements AddonManager {
         VisorAPI.Instance.setEventBus(new VREventBusImpl());
 
         this.logger = logger;
-        this.addonsMap = new LinkedHashMap<>();
-
-
     }
 
     public static void register(){
@@ -68,13 +67,17 @@ public class AddonManagerImpl implements AddonManager {
     }
 
     private void registerAddons(@NotNull VisorAddon coreAddon){
-        registerAddon(coreAddon);
+        var preAddonsMap  = new LinkedHashMap<String, VisorAddon>();
+
+        registerAddon(coreAddon, preAddonsMap);
         for(var addon : VisorAPI.Instance.getPreparedAddons().values()){
-            registerAddon(addon);
+            registerAddon(addon, preAddonsMap);
         }
+        //after registering, addons map must be immutable
+        this.addonsMap = ImmutableMap.copyOf(preAddonsMap);
     }
 
-    private void registerAddon(VisorAddon addon){
+    private void registerAddon(VisorAddon addon, LinkedHashMap<String, VisorAddon> preAddonsMap){
         logger.info("----- REGISTERING Visor Addon with ID: {}", addon.getAddonId());
 
         String validationError = ComponentIds.validate(addon.getAddonId());
@@ -84,8 +87,7 @@ public class AddonManagerImpl implements AddonManager {
                             + addon.getAddonId()
                             + "'. The ID pattern is incorrect: " + validationError);
         }
-
-        addonsMap.put(addon.getAddonId(), addon);
+        preAddonsMap.put(addon.getAddonId(), addon);
         addon.onAddonRegister();
     }
     private void loadAddon(VisorAddon addon) {
@@ -102,7 +104,7 @@ public class AddonManagerImpl implements AddonManager {
 
 
     @Override
-    public @NotNull VisorAddon getAddon(@NotNull String id) {
+    public @Nullable VisorAddon getAddon(@NotNull String id) {
         return addonsMap.get(id);
     }
 

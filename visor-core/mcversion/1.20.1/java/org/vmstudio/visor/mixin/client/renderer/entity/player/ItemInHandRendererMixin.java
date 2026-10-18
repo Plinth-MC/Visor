@@ -4,12 +4,14 @@ package org.vmstudio.visor.mixin.client.renderer.entity.player;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.renderer.ItemInHandRenderer;
-import net.minecraft.client.Minecraft;
 //? if <26.2 {
 import net.minecraft.client.renderer.MultiBufferSource;
 //?}
 //? if >=1.21.9 {
 /*import net.minecraft.client.renderer.SubmitNodeCollector;
+*///?}
+//? if >=1.21.9 && <26.2 {
+/*import org.vmstudio.visor.api.compatibility.mcversion.render.McFeatureRenderer;
 *///?}
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
@@ -105,7 +107,7 @@ public abstract class ItemInHandRendererMixin implements ItemInHandRendererExten
                                 MultiBufferSource bufferSource,
                                 int pCombinedLight,
                                 ItemStack itemStack) {
-        renderMap(poseStack, Minecraft.getInstance().gameRenderer.getSubmitNodeStorage(), pCombinedLight, itemStack);
+        renderMap(poseStack, McFeatureRenderer.collector(), pCombinedLight, itemStack);
     }
     *///?} else {
     @Override

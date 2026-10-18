@@ -54,6 +54,8 @@
   "visor.options.movement.world_rotation.smooth": "Smooth",
   "visor.options.movement.walk_up": "Walk Up",
   "visor.options.movement.walk_up.tooltip": "§bWalk Up§r\n\nAutomatically step up onto blocks while walking.",
+  "visor.options.movement.auto_sprint": "Auto Sprint",
+  "visor.options.movement.auto_sprint.tooltip": "§bAuto Sprint§r\n\nSprint when the movement joystick\nis pushed fully forward.\n\nTurn it off to sprint with the §eSprint§r action instead\n§7(Controls -> Game actions, no default binding for it).§r",
 
 
   "visor.options.movement.compatible_look_direction": "Compatible Look",
@@ -281,6 +283,7 @@
   "visor.action.hotbar": "Open HotBar",
   "visor.action.movement": "Movement",
   "visor.action.jump": "Jump",
+  "visor.action.sprint": "Sprint",
   "visor.action.rotate": "Rotate",
   "visor.action.shift": "Shift",
   "visor.action.hotbar_main": "Hotbar (Main)",

@@ -54,6 +54,8 @@
   "visor.options.movement.world_rotation.smooth": "Плавний",
   "visor.options.movement.walk_up": "Авто-підйом",
   "visor.options.movement.walk_up.tooltip": "§bАвто-підйом§r\n\nАвтоматичний підйом на блоки (на 1 блок вгору) під час ходьби.",
+  "visor.options.movement.auto_sprint": "Авто-біг",
+  "visor.options.movement.auto_sprint.tooltip": "§bАвто-біг§r\n\nБіг, коли джойстик руху\nвідхилено до упору вперед.\n\nВимкніть, щоб бігати за допомогою дії §eБіг§r\n§7(Керування -> Гра, без прив'язки за замовчуванням).§r",
 
   "visor.options.movement.compatible_look_direction": "Сумісний погляд",
   "visor.options.movement.compatible_look_direction.tooltip": "§bРежим сумісності погляду§r\n\nВикористовує §eнапрямок шолома§r як основний напрямок погляду для сервера.\n\nПри використанні предметів погляд тимчасово перемикається на §eруку§r.\n\n§7Це допомагає в модах, залежних від погляду гравця, але може змінити поведінку прицілювання.§r",
@@ -229,6 +231,7 @@
   "visor.action.hotbar": "Відкрити хотбар",
   "visor.action.movement": "Рух",
   "visor.action.jump": "Стрибок",
+  "visor.action.sprint": "Біг",
   "visor.action.rotate": "Поворот",
   "visor.action.shift": "Shift",
   "visor.action.hotbar_main": "Хотбар (Осн. рука)",

@@ -22,7 +22,7 @@ public class VisorRegistriesImpl implements ComponentRegistries {
     protected final List<ComponentRegistry<?>> list;
 
     public VisorRegistriesImpl(List<ComponentRegistry<?>> registries){
-        this.list = registries;
+        this.list = List.copyOf(registries); //keep immutable
     }
 
     @Override
