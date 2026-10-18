@@ -14,6 +14,7 @@ import org.vmstudio.visor.api.compatibility.mcversion.McVersionUtils;
 import org.vmstudio.visor.core.client.ClientContext;
 import org.vmstudio.visor.core.client.VisorState;
 import org.vmstudio.visor.core.client.gui.overlays.builtin.settings.VROverlaySettings;
+import org.vmstudio.visor.core.client.settings.VRSettingsRegistry;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.client.gui.screens.Screen;
@@ -24,6 +25,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -181,6 +183,8 @@ public class VRSettingsScreen extends McScreen {
 
     //
     private VRSettingsCategory settingsCategory = VRSettingsCategory.PRESETS;
+    //an addon tab when one is open (settingsCategory is ignored then)
+    private @Nullable VRSettingsRegistry.Tab settingsTab;
     private VROptionsSet options;
 
     private List<ButtonImaged> settingsButtons;
@@ -368,10 +372,35 @@ public class VRSettingsScreen extends McScreen {
                         }
                 );
             }
-            if(category == settingsCategory){
+            if(settingsTab == null && category == settingsCategory){
                 button.setSelected(true);
             }
 
+            settingsButtons.add(button);
+        }
+        for(var tab : VRSettingsRegistry.getTabs()){
+            ButtonImaged button = new ButtonImaged(
+                    new WidgetInfoButtonImaged()
+                            .pos(0, 0)
+                            .size(scaleHelper.scaledSize(50), scaleHelper.scaledSize(12))
+                            .setTexture(OptionTextures.BLACK_TEXTURE)
+                            .setInactiveOnSelected(false)
+                            .setDynamicTextScale(true)
+                            .setHighlightEnabled(true)
+                            .setHighlightHovered(OptionTextures.HOVERED_HIGHLIGHT)
+                            .setHighlightSelected(OptionTextures.SELECTED_HIGHLIGHT)
+                            .setText(tab.name()),
+                    (it) -> {
+                        for (var b : settingsButtons) {
+                            b.setSelected(false);
+                        }
+                        openTab(tab);
+                        it.setSelected(true);
+                    }
+            );
+            if(tab == settingsTab){
+                button.setSelected(true);
+            }
             settingsButtons.add(button);
         }
         categoryScroll = Math.min(categoryScroll, maxCategoryScroll());
@@ -380,7 +409,9 @@ public class VRSettingsScreen extends McScreen {
 
         options = initialized
                 ? options
-                : settingsCategory.getSupplier().apply(this);
+                : settingsTab != null
+                        ? settingsTab.page().apply(this)
+                        : settingsCategory.getSupplier().apply(this);
         options.initWidgets();
 
         buttonBack.active = options.canOpenPreviousPage();
@@ -441,12 +472,21 @@ public class VRSettingsScreen extends McScreen {
 
     public void openCategory(@NotNull VRSettingsCategory category){
         this.settingsCategory = category;
+        this.settingsTab = null;
         this.options = settingsCategory.getSupplier().apply(this);
         this.options.initWidgets();
         buttonBack.active = options.canOpenPreviousPage();
         buttonLoadDefaults.active = options.canLoadDefaults();
         repopulateWidgets();
 
+    }
+    public void openTab(@NotNull VRSettingsRegistry.Tab tab){
+        this.settingsTab = tab;
+        this.options = tab.page().apply(this);
+        this.options.initWidgets();
+        buttonBack.active = options.canOpenPreviousPage();
+        buttonLoadDefaults.active = options.canLoadDefaults();
+        repopulateWidgets();
     }
     public void switchOptions(@NotNull VROptionsSet options){
         this.options = options;
@@ -457,7 +497,8 @@ public class VRSettingsScreen extends McScreen {
     }
 
     private int maxCategoryScroll(){
-        int scrollable = VRSettingsCategory.values().length - 1;
+        int scrollable = VRSettingsCategory.values().length
+                + VRSettingsRegistry.getTabs().size() - 1;
         int scroll = 0;
         while (scroll < scrollable - 1
                 && (scrollable - scroll - 1) * CATEGORY_STEP + CATEGORY_BUTTON_HEIGHT
@@ -473,7 +514,7 @@ public class VRSettingsScreen extends McScreen {
         for(int i = 0; i < settingsButtons.size(); i++){
             var button = settingsButtons.get(i);
             button.setX(scaleHelper.scaledX(4));
-            if(categories[i] == VRSettingsCategory.PRESETS){
+            if(i < categories.length && categories[i] == VRSettingsCategory.PRESETS){
                 button.visible = true;
                 button.setY(scaleHelper.scaledY(CATEGORY_LIST_TOP));
                 continue;
